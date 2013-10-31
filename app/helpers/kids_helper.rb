@@ -1,0 +1,2 @@
+module KidsHelper
+end

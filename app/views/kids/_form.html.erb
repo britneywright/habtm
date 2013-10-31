@@ -1,0 +1,27 @@
+<%= form_for(@kid) do |f| %>
+  <% if @kid.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@kid.errors.count, "error") %> prohibited this kid from being saved:</h2>
+
+      <ul>
+      <% @kid.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="field">
+    <% for candy in Candy.find(:all) %>
+      <%= check_box_tag "kid[candy_ids][]", candy.id, @kid.candies.include?(candy.id) %>
+      <%= candy.name %>
+    <% end %>
+  <div>  
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

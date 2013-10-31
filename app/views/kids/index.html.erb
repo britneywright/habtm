@@ -1,0 +1,29 @@
+<h1>Listing kids</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Candies</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @kids.each do |kid| %>
+      <tr>
+        <td><%= kid.name %></td>
+        <td><%= kid.candies.map {|c| c.name}.join(', ') %></td>
+        <td><%= link_to 'Show', kid %></td>
+        <td><%= link_to 'Edit', edit_kid_path(kid) %></td>
+        <td><%= link_to 'Destroy', kid, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Kid', new_kid_path %>
