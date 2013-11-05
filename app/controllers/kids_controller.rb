@@ -5,7 +5,6 @@ class KidsController < ApplicationController
   # GET /kids.json
   def index
     @kids = Kid.all
-    @candies = Candy.all
   end
 
   # GET /kids/1
@@ -16,10 +15,12 @@ class KidsController < ApplicationController
   # GET /kids/new
   def new
     @kid = Kid.new
+    @candies = Candy.all    
   end
 
   # GET /kids/1/edit
   def edit
+    @candies = Candy.all
   end
 
   # POST /kids

@@ -1,6 +1,6 @@
 == README
 
-has_and_belongs_to_many relationships in Rails 4: Halloween Edition
+has_and_belongs_to_many relationships in Rails 4 example: Halloween Edition
 
 This is an example I put together of how to create a has_and_belongs_to_many relationship in Rails 4. The example is based on a relationship of kids that get many different candies for Halloween and candies that go to many different kids on Halloween.
 
