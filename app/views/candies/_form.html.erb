@@ -16,10 +16,7 @@
     <%= f.text_field :name %>
   </div>
   <div class="field">
-    <% for kid in Kid.find(:all) %>
-      <%= check_box_tag "candy[kid_ids][]", kid.id, @candy.kids.include?(kid.id) %>
-      <%= kid.name %>
-     <% end %> 
+    <%= collection_check_boxes(:candy, :kid_ids, Kid.all, :id, :name) %> 
   </div>  
   <div class="actions">
     <%= f.submit %>

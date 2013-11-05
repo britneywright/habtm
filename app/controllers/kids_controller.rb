@@ -5,6 +5,7 @@ class KidsController < ApplicationController
   # GET /kids.json
   def index
     @kids = Kid.all
+    @candies = Candy.all
   end
 
   # GET /kids/1
@@ -69,6 +70,6 @@ class KidsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def kid_params
-      params.require(:kid).permit(:name, {:candy_ids => []})
+      params.require(:kid).permit(:name, :candy_ids => [])
     end
 end
