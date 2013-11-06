@@ -1,0 +1,129 @@
+<h1>habtm Rails 4 Example Instructions</h1>	
+<p>I'm taking the learning by doing approach to Ruby and Ruby on Rails by building an application. I'm creating an app that will have a directory of various resources people can use to learn to code.</p>
+
+<p>As soon as I started, I ran into trouble trying to model my data. Some fields in my directory are straight forward like name and description, but others could contain multiple pieces of data in a single field, like programming language or difficulty level. For example a resource like Codecademy has lessons in multiple languages, including Ruby. And the reverse is also true, Ruby is taught by many resources, including Codecademy. In Rails this relationship is known as a has_and_belongs_to_many association. A resource has many languages and belongs to many languages.</p>
+
+<p>After banging my head for two days and combing through loads of guides, books, and Stack Overflow questions I finally figured out how to use has_and_belongs_to_many (habtm) associations in Rails 4. Here's my step-by-step approach.</p>
+
+<p>In the spirit of Halloween, my example involves kids and candy. Kids get a lot of different candy for halloween and candies go to a lot of different kids. Let's get started:</p>
+
+<p>Let's get started in the command line. Execute each of the following lines: </p>
+
+<pre><code></ul><li>rails new halloween </li>
+<li>cd halloween</li>
+<li>rails generate scaffold kid name</li>
+<li>rails generate scaffold candy name</li>
+<li>rails generate migration candies_kids</li>
+</ul></code></pre>
+
+<p>What's happening here? First, we create a new Rails application named "halloween" and move into it. Next, we're generating scaffolds for our kid and candy models, scaffolds set up common files with reasonable default code. We don't have to use scaffolds, but this will get us further along in the app so we can just focus on creating and executing the habtm association. Finally we create the database migration file for the candies kids join table. This is where the data shared between candy and kids is stored. It's important to note when naming the join table that you list the models alphabetically, so candies_kids, not kids_candies.</p>
+
+<p>Now let's move from the command line to Sublime or the text editor of your choice. Add or edit the following lines of code in the indicated files:<p>
+
+<h2>Models</h2>
+- <a href= "https://github.com/britneywright/habtm/blob/master/app/models/candy.rb#L2">/app/models/candy.rb</a>
+<pre class="prettyprint"><code>has_and_belongs_to_many :kids</code></pre>
+<br>
+- <a href = "https://github.com/britneywright/habtm/blob/master/app/models/kid.rb#L2">/app/models/kid.rb</a>
+<pre class="prettyprint"><code>has_and_belongs_to_many :candies</code></pre>
+
+<p>These lines of code declare the relationship between the models.</p>
+
+<h2>Controllers</h2>
+- /app/controllers/candies_controller.rb
+	<p><a href="https://github.com/britneywright/habtm/blob/master/app/controllers/candies_controller.rb#L16-L24">create an instance variable in two places</a>
+<pre class="prettyprint"><code>@kids = Kid.all</code></pre></p>
+
+<p>
+	<a href="https://github.com/britneywright/habtm/blob/master/app/controllers/candies_controller.rb#L74">in candy_params</a>
+<pre class="prettyprint"><code>params.require(:candy).permit(:name, :kid_ids => [])</code></pre>	
+</p>
+</p>
+<br>
+<p>		
+- /app/controllers/kids_controller.rb
+<p><a href="ttps://github.com/britneywright/habtm/blob/master/app/controllers/kids_controller.rb#L16-L24">create an instance variable in two places</a><pre class="prettyprint"><code>@candies = Candy.all</code></pre>
+</p>
+
+<p>
+<a href="https://github.com/britneywright/habtm/blob/master/app/controllers/kids_controller.rb#L74">in kids_params</a>	
+<pre class="prettyprint"><code>params.require(:kids).permit(:name, :candy_ids => [])</code></pre>	
+</p>
+
+<p>This is one area where I got hung up. In Rails 3 you wouldn't need to update the controller, you would add "attr_accessible :name" to each model. However in Rails 4 we must use strong parameters, as attr_accessible has been extracted out of Rails. So in each of the controller files we add the attributes we're going to use from the opposing model, which in this case is the id field and the array of data that will be contained in it.</p>
+
+<h2>Database</h2>
+<p>Finally we need to manually edit the table we've started creating. We're going to create the candies_kids table with a field for the candy_id and a field for the kid_id. Those are the only two fields we need on the join table, so we'll tell Rails to not create an id for each entry. This is where :id => false comes into play.</p>
+<p>
+- <a href="https://github.com/britneywright/habtm/blob/master/db/migrate/20131030170256_candies_kids.rb#L2-L7">/db/TIMESTAMP_candies_kids.rb</a>
+<pre class="prettyprint"><code>def change
+  create_table :candies_kids, :id => false do |t|
+    t.integer :candy_id
+    t.integer :kid_id
+  end
+end</code></pre>
+</p>
+
+<p>Once you've updated the migration, go back into the command line and run the migration to create the table.
+<pre><code><ul><li>rake db:migrate</li></ul></code></pre>
+</p>
+
+<p>The habtm relationship is now all set up. Let's look at two different ways to add data to the app. This is another area I had a hard time figuring out. Some exercises showed how to add data through the rails console, others only showed how part of one view should be set up. Here I've tried to show you a full 360 of adding and viewing the data.</p>
+
+<p>In the command line use rails console to create new kids and candies. Then we can associate candies to kids and kids to candies.
+<pre><code><ul><li>rails console</li>
+<li>ashley = Kid.create!(:name => "Ashley")</li>
+<li>snickers = Candy.create!(:name => "Snickers")</li>
+<li>ashley.candies << snickers</li>
+<li>timmy = Kid.create!(:name => "Timmy")</li>
+<li>skittles = Candy.create!(:name => "Skittles")</li>
+<li>skittles.kids << [timmy, ashley]</li></ul></p></code></pre>
+
+<p>In order to view, add and edit the association data from within the app we need to make some file adjustments first. The scaffolds we created earlier already took care of creating the different views we'll use to see and edit the models, but they don't include the association data between the models yet. So back into the text editor we go:</p>
+<h2>Views</h2>
+- <a href="https://github.com/britneywright/habtm/blob/master/app/views/kids/index.html.erb#L18">/app/views/kids/index.html.erb</a>
+<pre class="prettyprint"><code>&lt;th&gt;Candies&lt;/th&gt;
+&lt;td&gt;&lt;%= kid.candies.map {|c| c.name}.join(', ') %&gt;&lt;/td&gt;</code></pre>
+
+- <a href="https://github.com/britneywright/habtm/blob/master/app/views/candies/index.html.erb#L18">/app/views/candies/index.html.erb</a>
+<pre class="prettyprint"><code>&lt;th&gt;Kids&lt;/th&gt;
+&lt;td&gt;&lt;%= candy.kids.map {|k| k.name}.join(', ') %&gt;&lt;/td&gt;</code></pre>
+
+- <a href="https://github.com/britneywright/habtm/blob/master/app/views/kids/show.html.erb#L8-L11">app/views/kids/show.html.erb</a>
+<pre class="prettyprint"><code>&lt;p&gt;
+  &lt;strong&gt;Candy Names:&lt;/strong&gt;
+  &lt;%= @kid.candies.map {|c| c.name}.join(', ') %&gt;
+&lt;/p&gt;</code></pre>
+
+- <a href="https://github.com/britneywright/habtm/blob/master/app/views/candies/show.html.erb#L8-L11"/>app/views/candies/show.html.erb</a>
+<pre class="prettyprint"><code>&lt;p&gt;
+  &lt;strong&gt;Kids Names:&lt;/strong&gt;
+  &lt;%= @candy.kids.map {|k| k.name}.join(', ') %&gt;
+&lt;/p&gt;</code></pre>
+
+<p>In the index.html.erb and show.html.erb files we use the map iterator to take the needed elements out of the data set and display each of their names separated by a comma and space. So in the case of Ashley based on what we added through the rails console we would see Snickers, Skittles in the app. Note the lines in the show.html.erb files call the instance variables, while the index.html.erb files are calling local variables since they are within blocks.</p>
+
+
+- <a href="https://github.com/britneywright/habtm/blob/master/app/views/kids/_form.html.erb#L18-L20">/app/views/kids/_form.html.erb</a>
+<pre class="prettyprint"><code>&lt;div class="field">
+  &lt;%= collection_check_boxes(:kid, :candy_ids, @candies, :id, :name) %&gt;
+&lt;/div&gt;</code></pre>
+
+- <a href="https://github.com/britneywright/habtm/blob/master/app/views/candies/_form.html.erb#L18-L20">app/views/candies/_form.html.erb</a>
+<pre class="prettyprint"><code>&lt;div class="field">
+  &lt;%= collection_check_boxes(:candy, :kid_ids, @kids, :id, :name) %&gt;                            
+&lt;/div&gt;</code></pre>
+
+<p>In the _form.html.erb files, that are rendered in the edit and new pages, we create checkboxes for each option. We use the collection_check_boxes method to return check box tags for the collection of values. In the parentheses we include, in order, the object, method, collection, value_method, and text_method.</p>
+
+<p>Finally, back in your command line:
+<pre><code><ul><li>rails server</li></ul></code></pre>
+</p>
+
+<p>Now in your browser go to localhost:3000/kids or localhost:3000/candies. There you'll see the data we already added through the rails console. Here you can also create new kids and candies and assign them to each other.</p>
+
+<p>And there you have it. You've just created a habtm relationship. Many thanks to <a href="http://twitter.com/josh_cheek">Josh Cheek</a> for his assistance with editing this post. I learned even more through the editing that I'll now use to update my own application. If you follow the steps in this post to set up a habtm relationship let me know how it goes. Did you find it clear? Is there anything you're still unsure about? I'd love to hear your thoughts.</p>
+
+<p>Until next time,</p>
+
+<p>Wright Said Fred</p>

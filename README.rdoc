@@ -2,12 +2,8 @@
 
 has_and_belongs_to_many relationships in Rails 4 example: Halloween Edition
 
-This is an example I put together of how to create a has_and_belongs_to_many relationship in Rails 4. The example is based on a relationship of kids that get many different candies for Halloween and candies that go to many different kids on Halloween.
+This is an example I put together of how to create a has_and_belongs_to_many relationship in Rails 4. The example is based on a relationship of kids that get many different candies for Halloween and candies that go to many different kids on Halloween. You can see it in action, along with step-by-step instructions, at http://habtmexample.herokuapp.com/.
 
 Specs:
-
 * Ruby version: 1.9.3
-
 * Ruby on Rails version: 4.0.0
-
-* Database: sqlite3
